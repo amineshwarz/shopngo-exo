@@ -37,3 +37,6 @@ const styles = StyleSheet.create({
         paddingVertical: 10, // Espacement vertical
     },
 });
+
+
+// securiser le contenu de l'application en evitant les chevauchements avec les elements systeme

@@ -82,7 +82,7 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   key={category}
                   style={styles.categoryButton}
-                  // onPress={() => navigateToCategory (category)}
+                   onPress={() => navigateToCategory (category)}
                 >
                   <AntDesign name="tag" size={16} color={AppColors.primary[500]} />
                   <Text style={styles.categoryText}>
@@ -93,7 +93,8 @@ export default function HomeScreen() {
             </ScrollView>
 
           </View>
-          <View>
+
+          <View style={styles.featuredSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Meilleures Ventes</Text>
               {/* <TouchableOpacity onPress={navigateToproducts}> */}
@@ -114,6 +115,24 @@ export default function HomeScreen() {
               )}
             />
           </View>
+
+          {/* Section produit les plus récents */}
+          <View style={styles.newestSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Nouveautés</Text>
+              <TouchableOpacity >
+                <Text style={styles.seeAllText}>Voir tout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.productsGrid}>
+            {products?.map((product) => (
+              <View key={product.id} style={styles.productContainer}>
+                <ProductCard product={product} customStyle={{width:"100%"}} />
+              </View>
+              ))}
+          </View>
+
         </ScrollView>
       </View>
     </View>
@@ -188,10 +207,8 @@ const styles = StyleSheet.create({
     color: AppColors.primary[500],
   },
   featuredProductsContainer:{
-    paddingRight:20,
   },
   featuredProductContainer:{
-    marginRight:12,
   },
   title:{
     fontSize:14,
@@ -205,10 +222,24 @@ const styles = StyleSheet.create({
     textTransform:'capitalize',
     marginBottom:4,
   },
+  productsGrid:{
+    flexDirection:'row',
+    flexWrap:'wrap',
+    justifyContent:'space-between',
+    paddingRight:20,
+  },
+  newestSection:{
+    marginVertical:16,
+    marginBottom:8,
+  },
 
+  featuredSection:{
+    marginVertical:16,
+  },
 
-
-
-})
+  productContainer:{
+    width:'48%',
+  },
+});
 
 

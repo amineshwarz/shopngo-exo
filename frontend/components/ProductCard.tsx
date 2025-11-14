@@ -1,7 +1,14 @@
-import { StyleSheet, Text, View, StyleProp, ViewStyle, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, 
+    StyleProp, ViewStyle, 
+    TouchableOpacity, Image, 
+    Alert} 
+from 'react-native'
+import Toast from 'react-native-toast-message';
 import React from 'react'
 import { Product } from '@/type'
 import { AppColors } from '@/constants/theme';
+import Button from './Button';
+import { useRouter } from 'expo-router';
 
 
 
@@ -16,11 +23,27 @@ interface ProductCardProps {
 
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, customStyle}) => {
+    const router = useRouter();
+
     const {id, title, price, category, image} = product;
+
+    const handleAddToCart = () => {
+        Toast.show({
+            type: 'success',
+            text1: `Produit ${title} a été ajouté au panier.`,
+            text2: 'Vous pouvez le consulter dans votre panier.',
+            visibilityTime: 2000,
+        })
+        console.log(`Product ${id} added to cart.`);
+    };
+
+    const handleProductRoute = () => {
+        router.push(`/product/${id}` as any);
+    }
 
   return (
 
-    <TouchableOpacity style={[styles.card, compact && styles.compactCard,customStyle]} activeOpacity={0.8}>
+    <TouchableOpacity style={[styles.card, compact && styles.compactCard,customStyle]} activeOpacity={0.8} onPress={handleProductRoute}>
         <View style={styles.imageContainer}>
             <Image source={{uri: image}} style={styles.image} resizeMode="contain"/>
         </View>
@@ -28,7 +51,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, custo
             <Text style={styles.category}>{category}</Text>
             <Text style={styles.title} numberOfLines={compact ? 1:2} ellipsizeMode='tail'>{title}</Text>
             <View style ={styles.footer}>
-                <Text style={styles.price}>€ {price.toFixed(2)}</Text>
+                <Text style={[styles.price, !compact && {marginBottom:6}]}>€ {price.toFixed(2)}</Text>
+                {!compact && (<Button title="Ajouter au panier" size='small' variant='outline' onPress={handleAddToCart}/>)}
             </View>
         </View>
         

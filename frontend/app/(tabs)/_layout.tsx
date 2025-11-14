@@ -48,6 +48,8 @@ export default function TabLayout() {
       <Tabs.Screen name="favorite" options={{ href: null }}/>
 
       <Tabs.Screen name="cart" options={{ href: null }}/>
+
+      <Tabs.Screen name="product/[id]" options={{ href: null, tabBarStyle:{display:'none'} }}/>
     </Tabs>
   );
 }

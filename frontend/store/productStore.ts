@@ -18,7 +18,6 @@ interface ProductsState {
 }
 
 //create the store avec Zustand et persist avec AsyncStorage
-
 export const useProductStore = create<ProductsState>()(
     
     //middleware de persistance
@@ -63,3 +62,4 @@ export const useProductStore = create<ProductsState>()(
         }
     )
 );
+// ProduitStore: centralise les states et les actions liées aux produits et catégories.
