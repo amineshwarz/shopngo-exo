@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router'
 const SingleProductScreen = () => {
 
     const {id} = useLocalSearchParams<{id: string}>();
+    
     console.log("Product ID:", id);
 
   return (

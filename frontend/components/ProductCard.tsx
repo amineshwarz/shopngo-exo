@@ -23,9 +23,10 @@ interface ProductCardProps {
 
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, customStyle}) => {
-    const router = useRouter();
-
+    
     const {id, title, price, category, image} = product;
+
+    const router = useRouter();
 
     const handleAddToCart = () => {
         Toast.show({
@@ -38,7 +39,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, custo
     };
 
     const handleProductRoute = () => {
-        router.push(`/product/${id}` as any);
+        router.push(`/product/${id}`as any);
     }
 
   return (
