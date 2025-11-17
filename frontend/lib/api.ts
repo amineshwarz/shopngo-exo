@@ -17,6 +17,20 @@ import { Product } from '@/type';
         }
     };
 
+// -------------------SINGLE PRODUCT-------------------
+    export const getProduct = async (id:number):Promise<Product> => {
+        try {
+            const response =await fetch (`${API_URL}/products/${id}`)
+            if (!response.ok){
+                throw new Error ('Network response was not OK');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching product with id ${id}', error);
+            throw error;
+        }
+    }
+
 // -------------------- ALL CATEGORIES --------------------
     const getCategories = async (): Promise<string[]> => {                  // Fonction asynchrone pour récupérer les catégories de produits
         try {
@@ -31,7 +45,7 @@ import { Product } from '@/type';
         }
     }
 
-    export { getProducts, getCategories };
+    export { getProducts, getCategories, };
 
 
 // Le type Promise<Product[]> indique que la fonction retourne une promesse contenant un tableau 
