@@ -14,7 +14,7 @@ const wrapper = ({children} : {children: React.ReactNode}) => {
     <SafeAreaView style={styles.safeView}>
         {/* View principale pour organiser et styliser le contenu */}
         <View style={styles.container}>
-            {children} Affichage des composants enfants
+            {children} {/* Affichage des composants enfants */}
         </View>
     </SafeAreaView>
   )

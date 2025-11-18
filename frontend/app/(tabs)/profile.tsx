@@ -23,6 +23,7 @@ const ProfileScreen = () => {
         {user? (
           <View>
             <Text> User disponible</Text>
+            <Text> {user?.email}</Text>
           </View>
         ):(
           <View style={styles.container}>

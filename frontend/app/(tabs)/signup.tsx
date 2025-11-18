@@ -61,7 +61,7 @@ const SignUpScreen = () => {
     };
 //--------------------------------------------------------------------------------  
     const handleSignUp = async () => {
-        // console.log(email, password, confirmPassword);
+        // console.log('email, password, confirmPassword');
         if (validateForm()) {
           await signup(email, password);
           router.push("/(tabs)/login")
@@ -116,14 +116,12 @@ const SignUpScreen = () => {
                         secureTextEntry
                     />
                     <Button
-                         onPress={()=>router.push("/(tabs)/login")}
+                         onPress={handleSignUp}
                          title="Inscription"
-                        //  fullWidth
-                        //  loading={isLoading}
-                          style={styles.button}
+                         fullWidth
+                         loading={isLoading}
+                        style={styles.button}
                     />
-
-
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -171,7 +169,9 @@ const styles = StyleSheet.create({
       },
       button: {
         marginTop: 16,
-      },
+        backgroundColor: AppColors.primary[500],     
+     },
+        
       footer: {
         flexDirection: 'row',
         justifyContent: 'center',
