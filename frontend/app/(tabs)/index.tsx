@@ -16,8 +16,8 @@ import ProductCard from "@/components/ProductCard";
 
 export default function HomeScreen() {
   const router =useRouter();
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]); // État pour stocker les produits en vedette 
-  const { products, categories, fetchProducts, fetchCategories, loading, error } = useProductStore(); // Utilisation du store de produits
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);                              // État pour stocker les produits en vedette 
+  const { products, categories, fetchProducts, fetchCategories, loading, error } = useProductStore();   // Extraction des données et méthodes deouis le store Zustand
 
 
  //--------------- Premier effet : chargement des produits et catégories a l'ouverture de l'ecran 

@@ -1,7 +1,6 @@
 import { getCategories,getProducts } from "@/lib/api";                  // Importation des fonctions pour récupérer les produits et catégories
 import { Product } from "@/type";                                       // Importation du type Product
 import AsyncStorage from "@react-native-async-storage/async-storage";   // Importation d'AsyncStorage pour le stockage persistant
-import { useRouter } from "expo-router";
 import {create} from "zustand";                                         // Importation de la fonction create de Zustand pour créer le store
 import { createJSONStorage, persist } from "zustand/middleware";        // Importation des middlewares de persistance d'etat
 

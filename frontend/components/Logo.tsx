@@ -1,11 +1,14 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity} from 'react-native'
 import React from 'react'
 import { useRouter } from 'expo-router';
 import { Ionicons} from '@expo/vector-icons';
 import { AppColors } from '@/constants/theme';
 
 const Logo = () => {
-    const routeur = useRouter(); // Hook pour la navigation
+// ----------------------------------- Hook pour la navigation
+    const routeur = useRouter(); 
+
+// ------------------------------------------------------le return
   return (
     // TouchableOpacity : Quand on clique sur le logo, on retourne à la page d'accueil 
    <TouchableOpacity style={styles.logoView} onPress={() => routeur.push('/')}> 

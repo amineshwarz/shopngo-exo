@@ -57,4 +57,14 @@ export const supabase = createClient(supabaseUrl,supabaseAnonKey, {
         // Desactive la détection de session à partir de l'Url, inutile sur mobile
         detectSessionInUrl: false,
     },
+    realtime:{
+        // Mettre transport: undefined signifie que  Supabase choisir le transport par défaut, donc WebSocket sera automatiquement utilisé.
+        transport:undefined,
+    },
 } );
+
+
+
+// la partie realtime dans la configuration de ton client Supabase permet de gérer les connexions en temps réel (websockets) 
+// pour écouter les changements de données dans ta base (insertions, modifications, suppressions, etc.) ou pour interagir 
+// avec des canaux (channels) en direct.

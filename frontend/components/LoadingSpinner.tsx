@@ -3,7 +3,7 @@ import React from 'react'
 import { AppColors } from '@/constants/theme'
 
 
-// Déclaration de l'interface des props, pour typer les arguments du composant
+// ----------------Déclaration de l'interface des props, pour typer les arguments du composant
 interface LoadingSpinnerProps {
     size?: 'small' | 'large';
     color?: string;
@@ -11,7 +11,7 @@ interface LoadingSpinnerProps {
     fullScreen?: boolean;
 }
 
-// Définition du composant fonctionnel LoadingSpinner
+// ---------------------- Définition du composant fonctionnel LoadingSpinner
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     size = 'small',
@@ -20,7 +20,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     fullScreen = false,
 }) => {
 
-    if (fullScreen) {      // Si l'option fullScreen est activée, afficher le spinner en plein écran
+    if (fullScreen) {           // Si l'option fullScreen est activée, afficher le spinner en plein écran
         return ( 
             <View style={styles.fullScreen}>
                 <ActivityIndicator size={size} color={color} />

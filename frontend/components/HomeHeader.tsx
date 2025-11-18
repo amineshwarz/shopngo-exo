@@ -1,53 +1,59 @@
 import { StyleSheet, Text, View, Platform, TouchableOpacity} from 'react-native'
 import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context'  // gère les zones sûres (haut de l’écran, encoche sur iPhone, etc.)
 import {AppColors} from '@/constants/theme'
 import Logo from './Logo'
 import {  Ionicons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'     // hook pour naviguer entre les pages dans Expo Router
 
 const HomeHeader = () => {
-    const routeur = useRouter();
+
+    const routeur = useRouter(); // Hook pour accéder à la navigation (comme useNavigation) 
+
   return (
-    <SafeAreaView style={styles.container}>
+    // ------------ SafeAreaView protège le contenu des zones "non sûres" (haut de l'écran sur iPhone par ex.)
+    <SafeAreaView style={styles.container}>        
+      <View style={styles.header}> {/* Barre d'en-tête */}
+          <Logo/>                  {/* Logo à gauche */}
+          <View style={styles.iconContainer}>     {/* Conteneur des icônes (search, favorite, cart) */}
 
-        <View style={styles.header}>
-            <Logo/>
-            <View style={styles.iconContainer}>
-                <TouchableOpacity style={styles.searchButton} onPress={() => routeur.push('/(tabs)/search')}>
-                    <Ionicons 
-                        name="search-outline" 
-                        size={24} 
-                        color={AppColors.primary[700]}
-                    />
-                </TouchableOpacity>
-                
-                <TouchableOpacity style={styles.searchButton} onPress={() => routeur.push('/(tabs)/favorite')}>
-                    <Ionicons 
-                        name="heart-outline" 
-                        size={24} 
-                        color={AppColors.primary[700]}
-                    />
-                    <View style={styles.itemsView}>
-                        <Text style={styles.itemsText}>0</Text>
-                    </View>
+            {/* Bouton recherche */}
+              <TouchableOpacity style={styles.searchButton} onPress={() => routeur.push('/(tabs)/search')}>  {/*navigation vers la page de recherche*/}
+                  <Ionicons 
+                      name="search-outline"   // icône de loupe
+                      size={24} 
+                      color={AppColors.primary[700]}
+                  />
+              </TouchableOpacity>
 
-                </TouchableOpacity>
+            {/* Bouton favoris */}  
+              <TouchableOpacity style={styles.searchButton} onPress={() => routeur.push('/(tabs)/favorite')}> {/*navigation vers la page de favouris*/}
+                  <Ionicons 
+                      name="heart-outline" 
+                      size={24} 
+                      color={AppColors.primary[700]}
+                  />
+                  {/* Petit badge qui affiche le nombre d’éléments favoris */}
+                  <View style={styles.itemsView}>
+                      <Text style={styles.itemsText}>0</Text>
+                  </View>
+              </TouchableOpacity>
 
-                <TouchableOpacity style={styles.searchButton} onPress={() => routeur.push('/(tabs)/cart')}>
-                    <Ionicons 
-                        name="cart-outline" 
-                        size={24} 
-                        color={AppColors.primary[700]}
-                    />
-                    <View style={styles.itemsView}>
-                        <Text style={styles.itemsText}>0</Text>
-                    </View>
+            {/* Bouton panier */}
+              <TouchableOpacity style={styles.searchButton} onPress={() => routeur.push('/(tabs)/cart')}>
+                  <Ionicons 
+                      name="cart-outline" 
+                      size={24} 
+                      color={AppColors.primary[700]}
+                  />
+                  {/* Badge d’éléments dans le panier */}
+                  <View style={styles.itemsView}>
+                      <Text style={styles.itemsText}>0</Text>
+                  </View>
 
-                </TouchableOpacity>
-            </View>
-        </View>
-
+              </TouchableOpacity>
+          </View>
+      </View>
     </SafeAreaView>
   )
 }
@@ -103,5 +109,4 @@ const styles = StyleSheet.create({
         color: AppColors.accent[500],
         fontWeight: 800,
       },
-
 });
