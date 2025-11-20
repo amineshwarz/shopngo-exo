@@ -44,8 +44,53 @@ import { Product } from '@/type';
             throw error;
         }
     }
+// -------------------- Produit par Catégorie --------------------
+    const getProductsByCategory = async ( category: string ): Promise<Product[]> => {
+        try {
+            // Effectue une requête fetch vers l'API pour obtenir les produits d'une catégorie donnée
+            const response = await fetch(`${API_URL}/products/category/${category}`);
+            // Vérifie que la réponse est correcte
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            // Retourne le tableau des produits récupérés
+            return await response.json();
+        } catch (error) {
+            // Affiche une erreur si la récupération échoue, en affichant la catégorie concernée
+            console.error(`Failed to fetch products in category ${category}:`, error);
+            // Relance l'erreur
+            throw error;
+        }
+    };
+// -------------------- Search Product  --------------------
+    const searchProductsApi = async (query: string): Promise<Product[]> => {
+        try {
+            // Effectue une requête fetch pour obtenir tous les produits
+            const response = await fetch (`${API_URL}/products`);
+            // Vérifie la validité de la réponse
+            if (!response.ok) {
+            throw new Error("Network response was not ok");
+            }
+            // Récupère la liste des produits
+            const products = await response.json();
+            // Prépare le terme de recherche en minuscule et sans espaces superflus
+            const searchTerm = query.toLowerCase().trim();
+            // Filtre les produits dont le titre, la description ou la catégorie contient le terme recherché
+            return products.filter(
+                (product :Product) => 
+                    product.title.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm)
+            );
+        } catch (error) {
+            // Affiche une erreur en cas d'échec de la recherche
+            console.error("Failed to search  products:", error);
+            // Relance l'erreur
+            throw error;
+        }
+    };
 
-    export { getProducts, getCategories, };
+    export { getProducts, getCategories, getProductsByCategory, searchProductsApi };
 
 
 // Le type Promise<Product[]> indique que la fonction retourne une promesse contenant un tableau 

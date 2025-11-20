@@ -1,64 +1,148 @@
-import { getCategories,getProducts } from "@/lib/api";                  // Importation des fonctions pour récupérer les produits et catégories
-import { Product } from "@/type";                                       // Importation du type Product
-import AsyncStorage from "@react-native-async-storage/async-storage";   // Importation d'AsyncStorage pour le stockage persistant
-import {create} from "zustand";                                         // Importation de la fonction create de Zustand pour créer le store
-import { createJSONStorage, persist } from "zustand/middleware";        // Importation des middlewares de persistance d'etat
+//Import des fonctions d'API et des types nécessaires
+import { getCategories, getProducts, getProductsByCategory, searchProductsApi } from '@/lib/api';
+//Import du type Product
+import { Product } from '@/type';
+//Import des bibliothèques nécessaires pour la gestion de l'état avec persistance
+import AsyncStorage from '@react-native-async-storage/async-storage';
+//Zustand pour la gestion de l'état, création du store
+import { create } from 'zustand';
+//Middleware pour la persistance de l'état
+import { createJSONStorage, persist } from 'zustand/middleware';
 
+//---------------------------Définition de l'interface pour le state du store
 interface ProductsState {
-    products: Product[];                     // Tableau des produits
-    filtredProducts: Product[];              // Tableau des produits filtrés
-    categories: string[];                    // Tableau des catégories
-    loading: boolean;                        // Indicateur de chargement
-    error: string | null;                    // Message d'erreur
-
-  // Action to fetche products 
-    fetchProducts: () => Promise<void>;     //Méthode pour récupérer les produits depuis l'API
-    fetchCategories: () => Promise<void>;   // Méthode pour récupérer les catégories depuis l'API
+    products: Product[];                            //Liste complète des produits
+    filteredProducts: Product[];                    //Liste des produits filtrés   
+    categories: string[];                           //Liste des catégories de produits disponibles
+    loading: boolean;                               //Indicateur de chargement
+    error: string | null;   
+    selectedCategory: string | null;                //Message d'erreur, s'il y en a
+    //Action to fetch products
+    //Méthode pour récupérer les produits depuis l'API
+    fetchProducts: () => Promise<void>;
+    //Méthode pour récupérer les catégories depuis l'API
+    fetchCategories: () => Promise<void>;
+    setCategory: (category: string | null) => Promise<void>;
+    searchProducts: (query: string) => void;
+    sortProducts: (sortBy: "price-asc" | "price-desc" | "rating") => void;
+    searchProductsRealTime: (query: string) => Promise<void>;
 }
+//---------------------------Création du store avec Zustand et persistance avec AsyncStorage
 
-//create the store avec Zustand et persist avec AsyncStorage
-export const useProductStore = create<ProductsState>()(
-    
-    //middleware de persistance
-    persist(
-        (set, get) => ({  
-            products: [], // Initialisation du tableau des produits
-            filtredProducts: [], // Initialisation du tableau des produits filtrés
-            categories: [], // Initialisation du tableau des catégories
-            loading: false, // Initialisation de l'indicateur de chargement
-            error: null, // Initialisation du message d'erreur
-            // Méthode pour récupérer les produits depuis l'API
-            fetchProducts: async () => {
-                try {
-                    set({ loading: true, error: null }); // Début du chargement
-                    const products = await getProducts(); // Appel de l'API pour récupérer les produits
-                    set({ products, 
-                        filtredProducts: products, 
-                        loading: false 
-                    }); // Mise à jour des produits et fin du chargement
+export const useProductStore = create<ProductsState>((set, get) =>
+    ({                              //set=modifer le state, get=accéder au state
+        //Initialisation des valeurs du state
+        products: [],
+        filteredProducts: [],
+        selectedCategory: null,
+        categories: [],
+        loading: false,
+        error: null,
+        //Méthode pour récupérer les produits depuis l'API
+        fetchProducts: async () => {
+           try {
+                //Active le mode de chargement et réinitialise les erreurs
+                set({ loading: true, error: null });
+                //Appel de l'API pour récupérer les produits
+                const products = await getProducts();
+                //Mise à jour du state (donc le store) avec les produits récupérés
+                set({ 
+                    products,                           //Liste complète des produits
+                    filteredProducts: products,         //Initialement, les produits filtrés sont les mêmes que la liste complète
+                    loading: false                      //Désactive le mode de chargement
+                });
+               
+           } catch (error: any) {
+                //Enregistre l'erreur et stoppe le chargement
+                set({ error: error.message, loading: false });
+           }
+        },
+        fetchCategories: async () => {
+            try {
+               set({loading: true, error: null });
+               const categories = await getCategories();
+                set({ categories, loading: false });
+            } catch (error: any) {
+                set({ error: error.message, loading: false });
+            }
+        },
+        setCategory: async (category: string | null) => {
+            try {
+                set({ selectedCategory: category, loading: true, error: null});
 
-                } catch (error: any) {
-                    // set({ error: (error as Error).message, loading: false }); // Gestion des erreurs
-                    set ({ error: error.message, loading: false }); // Gestion des erreurs
+                if ( category) {
+                    set ({ loading: true, error: null });
+                    const products = await getProductsByCategory(category);
+                    set ({ filteredProducts: products, loading: false});
+                } else {
+                    set({ filteredProducts: get().products, loading: false});
                 }
-            },
-            // Méthode pour récupérer les catégories depuis l'API
-            fetchCategories: async () => {
-                try {
-                    set({ loading: true, error: null }); // Début du chargement
-                    const categories = await getCategories(); // Appel de l'API pour récupérer les catégories
-                    set({ categories, loading: false }); // Mise à jour des catégories et fin du chargement
-                } catch (error: any) {
-                    set({ error: error.message, loading: false }); // Gestion des erreurs
+            } catch (error: any) {
+               set({ error: error.message, loading: false}); 
+            }
+        },
+        searchProducts: (query: string) => {
+            const searchTerm = query.toLowerCase().trim();
+            const { products, selectedCategory } = get();
+
+            let filtered = products;
+
+            if (selectedCategory) {
+                filtered = products.filter(
+                    (product) => product.category === selectedCategory
+                );
+            }
+
+            if (searchTerm) {
+                filtered = filtered.filter(
+                    (product) => 
+                        product.title.toLowerCase().includes(searchTerm) ||
+                        product.description.toLowerCase().includes(searchTerm) ||
+                        product.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            set({ filteredProducts: filtered });
+        },
+
+        sortProducts: (sortBy: "price-asc" | "price-desc" | "rating") => {
+            const { filteredProducts }= get();
+            let sorted = [...filteredProducts];
+
+            switch (sortBy) {
+                case "price-asc":
+                    sorted.sort((a, b) => a.price - b.price);
+                break;
+                case "price-desc":
+                    sorted.sort((a, b) => b.price - a.price);
+                break;
+                case "rating":
+                    sorted.sort((a, b) => b.rating.rate - a.rating.rate);
+                break;
+                default:
+                break;
+            }
+            set({ filteredProducts: sorted});
+        },
+        searchProductsRealTime: async (query: string) => {
+            try {
+                set({ loading: true, error: null});
+
+                // if (!query.trim()) {
+                //     set ({ filteredProducts: get().products, loading: false });
+                //     return;
+                // }
+
+                if(query?.length >= 3 ) { //modif ici aussi
+                    const searchResults = await searchProductsApi(query);
+                    set({ filteredProducts: searchResults, loading: false});
+                } else {
+                    set({ filteredProducts: [], loading: false });
                 }
-            },
-        }),
-        
-        // opption de middleware de persistance
-        {
-            name: 'product-storage', // Nom de la clé de stockage
-            storage: createJSONStorage(() => AsyncStorage), // Utilisation d'AsyncStorage pour le stockage
-        }
-    )
-);
-// ProduitStore: centralise les states et les actions liées aux produits et catégories.
+
+               
+            } catch (error: any) {
+                set({ error: error.message, loading: false});
+            }
+        },
+    }));

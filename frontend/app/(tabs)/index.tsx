@@ -37,7 +37,7 @@ export default function HomeScreen() {
   const navigateToCategory = (category: string) => {
     router.push({
       pathname :'/(tabs)/shop',
-      params: { category: category },
+      params: { category },
     });
   }
 
