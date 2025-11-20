@@ -64,6 +64,8 @@ export default function TabLayout() {
 
         <Tabs.Screen name="signup" options={{ href: null }}/>
 
+        <Tabs.Screen name="orders" options={{ href: null }}/>
+
         <Tabs.Screen name="product/[id]" options={{ href: null, tabBarStyle:{display:'none'} }}/> {/* tabBarStyle: Cache complètement la barre d’onglets sur cette page */}
 
     </Tabs>

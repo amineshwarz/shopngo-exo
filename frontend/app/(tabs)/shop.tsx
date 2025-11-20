@@ -1,8 +1,29 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const shop = () => {
+const ShopScreen = () => {
+
+
+
+  const [products,setProducts]=useState([]);
+// ----------------- useEffect ------------------  
+  useEffect(() => {
+    const getProducts = async() => {
+      const response = await fetch("https://fakestoreapi.com",{
+        method: "GET",
+        headers: {
+          "content-Type" : "application/jason",
+        },
+      });
+      const data =await response.json();
+      setProducts(data);
+    };
+    getProducts();
+  }, []);
+
+
+
   return (
     <SafeAreaView>
         <View>
@@ -13,6 +34,6 @@ const shop = () => {
   )
 }
 
-export default shop
+export default ShopScreen
 
 const styles = StyleSheet.create({})
