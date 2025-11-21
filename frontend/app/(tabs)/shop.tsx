@@ -10,99 +10,126 @@ import EmptyState from '@/components/EmptyState';
 import ProductCard from '@/components/ProductCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
+
+
+//-------------------------------- Composant principal pour afficher la liste des produits du magasin-------------------------------------------
 const ShopScreen = () => {
 
-    // Récupération des paramètres de recherche et catégorie dans l'URL
-    const {q:searchParam,category:categoryParam} = useLocalSearchParams<{
+    const router = useRouter();  // Hook pour navigation entre écrans
+    const [products,setProducts]=useState([]);
+    
+    const [showShortModal, setShowShortModal] = useState(false);                    // État local pour afficher/masquer la modal de tri   
+    const [activeSortOption, setActiveSortOption] = useState<string | null>(null); // État pour indiquer l'option de tri active (prix, note...)   
+    const [isFilterActive, setIsFilterActive] = useState(false);                   // État pour savoir si un filtre est actif ou non      
+    const {q:searchParam,category:categoryParam} = useLocalSearchParams<{         // Récupération des paramètres de recherche et catégorie dans l'URL
       q?:string; 
       category?:string
     }>();
+
     console.log(categoryParam);
 
-  // Extraction des méthodes et états du store produit (zustand ou autre)
-  const {
-    filteredProducts, 
-    selectedCategory, loading, 
-    error, fetchProducts,
-    setCategory, sortProducts,  
-    fetchCategories, categories,
-    
-  } = useProductStore();
+  // ------  Extraction des méthodes et états du store produit (zustand ou autre)
+    const {
+      filteredProducts, 
+      selectedCategory, loading, 
+      error, fetchProducts,
+      setCategory, sortProducts,  
+      fetchCategories, categories,
+    } = useProductStore();
 
-  const router = useRouter();
+  // -------------  Hook d'effet appelé au montage du composant :
+        // - Récupération des catégories et produits via le store
+        // - Initialisation de la catégorie sélectionnée si spécifiée dans les params
+    useEffect(() => {
+      fetchCategories();
+      fetchProducts();
+      if (categoryParam) {
+        setCategory(categoryParam);
+      }
+    }, []);
+    console.log("consollod de loading",loading)
 
-  const [products,setProducts]=useState([]);
-  // État local pour afficher/masquer la modal de tri
-  const [showShortModal, setShowShortModal] = useState(false);
-  // État pour indiquer l'option de tri active (prix, note...)
-  const [activeSortOption, setActiveSortOption] = useState<string | null>(null);
-   // État pour savoir si un filtre est actif ou non
-  const [isFilterActive, setIsFilterActive] = useState(false);
-// ----------------- useEffect ------------------  
-  useEffect(() => {
-    fetchCategories();
-    fetchProducts();
-    if (categoryParam) {
-      setCategory(categoryParam);
-    }
-  }, []);
-  console.log("consollod de loading",loading)
-// ----------------- renderHeader---------------------
-const renderHeader = () => {
-  return (
-    <View style ={styles.header}>
-        <Text style={styles.title}> Tous les produits </Text>
-        <View style={{flexDirection: 'row'}}>
-            <TouchableOpacity style={styles.searchRow} onPress={() => router.push("/(tabs)/search")}>
-                <View style={styles.searchContainer}>
-                    <View style={styles.searchInput}>
-                      <Text>Cherchez un produit...</Text>
-                    </View>
-                </View>   
-                <View style={styles.searchButton}>
-                    <Ionicons
-                        name="search"
-                        size={20}
-                        color='white'
-                      />
-                </View>   
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.sortOption, isFilterActive && styles.activeSortButton,]} onPress={() => setShowShortModal(true)}>
-                <AntDesign
-                  name='filter'
-                  size={20}
-                  color={AppColors.text.primary}
-                />
-            </TouchableOpacity>
-        </View>
 
-        <ScrollView 
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesContainer}
-        >
-            <TouchableOpacity style={[styles.categoryButton, styles.selectedCategory === null && styles.selectedCategory]} >
-                <Text style={[ styles.categoryText, selectedCategory === null && styles.selectedCategoryText]}> Tous </Text>
-            </TouchableOpacity>
-            {categories?.map((category) =>(
-                <TouchableOpacity
-                onPress={() => setCategory(category)}
-                    key={category}
-                    style={[
-                        styles.categoryButton,
-                        selectedCategory === category && styles.selectedCategory,
-                    ]}
-                >
-                  <Text style={[styles.categoryText, selectedCategory === category && styles.selectedCategoryText]}>
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </Text>
+
+// ----------------- de l'en-tête de la page avec ---------------------
+      // - Le titre
+      // - La barre de recherche naviguant vers l'écran recherche
+      // - Un bouton pour ouvrir la modal de tri
+      // - La liste horizontale des catégories sous forme de boutons
+
+    const renderHeader = () => {
+      return (
+        <View style ={styles.header}>
+            <Text style={styles.title}> Tous les produits </Text>
+            <View style={{flexDirection: 'row',width:'100%'}}>
+
+                <TouchableOpacity style={styles.searchRow} onPress={() => router.push("/(tabs)/search")}>
+                    <View style={styles.searchContainer}>
+                        <View style={styles.searchInput}>
+                          <Text>Cherchez un produit...</Text>
+                        </View>
+                    </View>   
+                    <View style={styles.searchButton}>
+                        <Ionicons
+                            name="search"
+                            size={20}
+                            color='white'
+                          />
+                    </View>   
                 </TouchableOpacity>
-            ))}
-        </ScrollView>
-    </View>
-  )
-}
+                {/* ------MODAL---- */}
+                <TouchableOpacity style={[styles.sortOptionView, isFilterActive && styles.activeSortButton,]} onPress={() => setShowShortModal(true)}>
+                    <AntDesign
+                      name='filter'
+                      size={20}
+                      color={AppColors.text.primary}
+                    />
+                </TouchableOpacity>
+            </View>
 
+            <ScrollView 
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoriesContainer}
+            >
+                {/* Bouton "Tous" pour réinitialiser la catégorie */}
+                <TouchableOpacity style={[styles.categoryButton, styles.selectedCategory === null && styles.selectedCategory]} onPress={() => setCategory(null)} >
+                    <Text style={[ styles.categoryText, selectedCategory === null && styles.selectedCategoryText]}> Tous </Text>
+                </TouchableOpacity>
+
+                {/* Boutons pour chaque catégorie disponible */}
+                {categories?.map((category) =>(
+                    <TouchableOpacity
+                        onPress={() => setCategory(category)}
+                        key={category}
+                        style={[
+                            styles.categoryButton,
+                            selectedCategory === category && styles.selectedCategory,
+                        ]}
+                    >
+                      <Text style={[styles.categoryText, selectedCategory === category && styles.selectedCategoryText]}>
+                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+        </View>
+      );
+    };
+
+
+  //sortBY rappelez vous le productStore price-asc price desc rating on a fait le switch case
+  // Gestion du tri des produits selon un critère donné
+  const handleSort= (sortBy: "price-asc" | "price-desc" | "rating") => {
+    // Appliquer le tri dans le store
+    sortProducts(sortBy);
+    // Mémoriser l'option de tri active
+    setActiveSortOption(sortBy);
+    // Fermer la modal de tri
+    setShowShortModal(false);
+    // Activer le filtre visuel
+    setIsFilterActive(true);
+  };
 
 
   return (
@@ -138,7 +165,7 @@ const renderHeader = () => {
           visible={showShortModal}
           transparent
           animationType='fade'
-          onRequestClose={() => setShowShortModal(false)}
+          onRequestClose={() => setShowShortModal(true)}
       >
         <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
@@ -153,12 +180,30 @@ const renderHeader = () => {
                         />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity 
-                    style={[styles.sortOption, activeSortOption === "price-asc" && styles.activeSortButton,]}   
-                    onPress={()=> handleSort("price-asc")}
-                >
-                      <Text style={styles.sortOptionText}>Prix: Plus bas au plus élevé</Text>  
-                </TouchableOpacity>               
+                <TouchableOpacity style={[styles.sortOption]}   onPress={()=> handleSort("price-asc")}>
+                      <Text style={[styles.sortOptionText,  activeSortOption === "price-asc" && styles.activeSortText] }>Prix: Plus bas au plus élevé</Text>  
+                </TouchableOpacity>  
+
+                <TouchableOpacity style={styles.sortOption} onPress={()=> handleSort("price-desc")} >
+
+                    <Text style={[
+                        styles.sortOptionText,
+                        activeSortOption === "price-desc" && styles.activeSortText,
+                      ]}
+                    >
+                      Prix: Plus élevé au plus bas 
+                    </Text>
+                </TouchableOpacity> 
+
+                <TouchableOpacity style={styles.sortOption} onPress={()=> handleSort("rating")} >
+                  <Text style={[
+                      styles.sortOptionText,
+                      activeSortOption === "rating" && styles.activeSortText,
+                    ]}
+                  >
+                    Meilleur note
+                  </Text>
+                </TouchableOpacity>            
             </View>
         </View>
       </Modal>
@@ -231,7 +276,7 @@ const styles = StyleSheet.create({
   },
   activeSortButton: {
     borderWidth: 1,
-    borderColor: AppColors.error,
+    // borderColor: AppColors.error,
   },
   activeSortText: {
     color: AppColors.primary[600],
@@ -287,6 +332,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
+    marginTop:50, // a changer avec andoid
    },
   modalTitle: {
     fontFamily: "Inter-SemiBold",
