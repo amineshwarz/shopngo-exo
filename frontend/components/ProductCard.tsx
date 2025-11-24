@@ -24,7 +24,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, customStyle}) => {
     
-    const {id, title, price, category, image} = product;
+    const {id, title, price, category, image, rating} = product;
 
     const router = useRouter();
 
@@ -52,7 +52,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, custo
             <Text style={styles.category}>{category}</Text>
             <Text style={styles.title} numberOfLines={compact ? 1:2} ellipsizeMode='tail'>{title}</Text>
             <View style ={styles.footer}>
-                <Text style={[styles.price, !compact && {marginBottom:6}]}>€ {price.toFixed(2)}</Text>
+                <Text style={[styles.price, !compact && {marginBottom:6}]}>
+                    € {price.toFixed(2)}
+                </Text>
+                <Text style={[styles.ratingText, !compact && { marginBottom: 7}]}>
+                    Notes:{rating?.rate.toFixed(1)}/{`(${rating?.count})`}
+                </Text>
                 {!compact && (<Button title="Ajouter au panier" size='small' variant='outline' onPress={handleAddToCart}/>)}
             </View>
         </View>
@@ -129,6 +134,11 @@ const styles = StyleSheet.create({
         borderWidth:1,
         borderColor: AppColors.gray[200],
 
+    },
+    ratingText: {
+        marginBottom: 8,
+        textTransform: 'capitalize',
+        color: AppColors.gray[600],
     },
 
 })

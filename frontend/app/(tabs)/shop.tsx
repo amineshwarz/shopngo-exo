@@ -117,21 +117,32 @@ const ShopScreen = () => {
       );
     };
 
+// ------------------------ Gestion du tri des produits selon un critère donné--------------------------
+    //sortBY rappelez vous le productStore price-asc price desc rating on a fait le switch case
+    const handleSort= (sortBy: "price-asc" | "price-desc" | "rating") => {
+      // Appliquer le tri dans le store
+      sortProducts(sortBy);
+      // Mémoriser l'option de tri active
+      setActiveSortOption(sortBy);
+      // Fermer la modal de tri
+      setShowShortModal(false);
+      // Activer le filtre visuel
+      setIsFilterActive(true);
+    };
 
-  //sortBY rappelez vous le productStore price-asc price desc rating on a fait le switch case
-  // Gestion du tri des produits selon un critère donné
-  const handleSort= (sortBy: "price-asc" | "price-desc" | "rating") => {
-    // Appliquer le tri dans le store
-    sortProducts(sortBy);
-    // Mémoriser l'option de tri active
-    setActiveSortOption(sortBy);
-    // Fermer la modal de tri
-    setShowShortModal(false);
-    // Activer le filtre visuel
-    setIsFilterActive(true);
-  };
+    const handleResetFilter = () => {
+      // Tri par défaut (prix croissant)
+      sortProducts("price-asc");
+      // Aucune option de tri active
+      setActiveSortOption(null);
+      // Fermer la modal
+      setShowShortModal(false);
+      // Désactiver l'indicateur de filtre
+      setIsFilterActive(false);
+    };
+    
 
-
+// ---------------------------------- Rendu principal du composant --------------------------------------------
   return (
     <Wrapper>
         {renderHeader()}
@@ -180,6 +191,7 @@ const ShopScreen = () => {
                         />
                     </TouchableOpacity>
                 </View>
+                
                 <TouchableOpacity style={[styles.sortOption]}   onPress={()=> handleSort("price-asc")}>
                       <Text style={[styles.sortOptionText,  activeSortOption === "price-asc" && styles.activeSortText] }>Prix: Plus bas au plus élevé</Text>  
                 </TouchableOpacity>  
@@ -203,7 +215,16 @@ const ShopScreen = () => {
                   >
                     Meilleur note
                   </Text>
-                </TouchableOpacity>            
+                </TouchableOpacity>  
+
+                {/* Bouton visible uniquement si un filtre est actif */}
+                {isFilterActive && (
+                  <TouchableOpacity style={styles.sortOption} onPress={handleResetFilter}>
+                    <Text style={[ styles.sortOptionText, { color: AppColors.error}]} >
+                      Supprimer les filtres
+                    </Text>
+                  </TouchableOpacity>
+                )}          
             </View>
         </View>
       </Modal>
