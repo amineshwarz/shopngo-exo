@@ -9,6 +9,7 @@ import { Product } from '@/type'
 import { AppColors } from '@/constants/theme';
 import Button from './Button';
 import { useRouter } from 'expo-router';
+import Rating from './Rating';
 
 
 
@@ -55,9 +56,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, custo
                 <Text style={[styles.price, !compact && {marginBottom:6}]}>
                     € {price.toFixed(2)}
                 </Text>
-                <Text style={[styles.ratingText, !compact && { marginBottom: 7}]}>
-                    Notes:{rating?.rate.toFixed(1)}/{`(${rating?.count})`}
-                </Text>
+                <Rating rating={rating?.rate} count={rating?.count} size={12} />
                 {!compact && (<Button title="Ajouter au panier" size='small' variant='outline' onPress={handleAddToCart}/>)}
             </View>
         </View>
