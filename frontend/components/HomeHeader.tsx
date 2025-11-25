@@ -5,10 +5,14 @@ import {AppColors} from '@/constants/theme'
 import Logo from './Logo'
 import {  Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'     // hook pour naviguer entre les pages dans Expo Router
+import { useCartStore } from '@/store/cartStore'
+import { useFavoritesStore } from '@/store/favoriteStore'
 
 const HomeHeader = () => {
 
     const routeur = useRouter(); // Hook pour accéder à la navigation (comme useNavigation) 
+    const {items} =useCartStore(); // Récupère les éléments du panier depuis le store
+    const {favoriteItems} = useFavoritesStore(); // Récupère les éléments favoris depuis le store
 
   return (
     // ------------ SafeAreaView protège le contenu des zones "non sûres" (haut de l'écran sur iPhone par ex.)
@@ -35,7 +39,7 @@ const HomeHeader = () => {
                   />
                   {/* Petit badge qui affiche le nombre d’éléments favoris */}
                   <View style={styles.itemsView}>
-                      <Text style={styles.itemsText}>0</Text>
+                      <Text style={styles.itemsText}>{favoriteItems?.length ? favoriteItems?.length : 0}</Text>
                   </View>
               </TouchableOpacity>
 
@@ -48,7 +52,7 @@ const HomeHeader = () => {
                   />
                   {/* Badge d’éléments dans le panier */}
                   <View style={styles.itemsView}>
-                      <Text style={styles.itemsText}>0</Text>
+                      <Text style={styles.itemsText}>{items?.length ? items?.length : 0}</Text>
                   </View>
 
               </TouchableOpacity>

@@ -10,6 +10,8 @@ import Button from '@/components/Button';
 import Rating from '@/components/Rating';
 import { AntDesign } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useCartStore } from '@/store/cartStore';
+import { useFavoritesStore } from '@/store/favoriteStore';
 
 
 const {width}= Dimensions.get('window');  // Récupère la largeur de l'écran (utile pour le responsive design, même si pas encore utilisé dans le JSX)
@@ -26,6 +28,10 @@ const SingleProductScreen = () => {
     const idNum = Number(id);                                     // Conversion de l'ID (string) en nombre pour l'appel API
 
     const router = useRouter();
+
+    const {addItem} = useCartStore();                             // Récupère la fonction d'ajout au panier depuis le store
+
+    const {isFavorite, toggleFavorite} = useFavoritesStore();  // Récupère les fonctions de gestion des favoris depuis le store
 
     console.log("Product ID:", id);
 
@@ -48,20 +54,8 @@ const SingleProductScreen = () => {
       }
     }, [id]);                                 // Dépendance : relance l'effet si l'ID change
     console.log('product data', product)
-
-  //------------------------------------------------------ Handler -------------------------------------------
-    //ajout au panier : ajoute avec la quantité choisie et affiche une notification
-    const handleAddToCart = () => {
-      // addItem(product, quantity);
-        Toast.show({
-          type: 'success',
-          text1: `Produit ${product?.title} ajouté au panier 👋`,
-          text2: "Voir le panier pour finaliser votre achat.",
-          visibilityTime: 2000,
-        });
-    };
      //------------------------ Affichage spinner de chargement si la requête est en cours ------------------------------------
-    if (loading) {
+     if (loading) {
       return (
       <View style={{flex: 1, alignItems:'center', justifyContent: 'center'}}>
         <LoadingSpinner fullScreen/>
@@ -82,13 +76,33 @@ const SingleProductScreen = () => {
         </View>
       );
     }
+  //------------------------------------------------------ Handler -------------------------------------------
+    //ajout au panier : ajoute avec la quantité choisie et affiche une notification
+    const isFav = isFavorite(product?.id);               // Vérifie si le produit est dans les favoris
+    const handleAddToCart = () => {
+        addItem(product, quantity);
+        Toast.show({
+          type: 'success',
+          text1: `Produit ${product?.title} ajouté au panier 👋`,
+          text2: "Voir le panier pour finaliser votre achat.",
+          visibilityTime: 2000,
+        });
+    };
+
+     // Handler ajout/retrait favoris
+    const handleToggleFavorite = () => {
+      if (product) {
+        toggleFavorite(product);
+      }
+    }
+
 
 
 //------------------------------------------ le Rendu jsx ------------------------------------------
   return (
     <View style={styles.headerContainerStyle}>
+      <CommonHeader isFav={isFav} handleToggleFavorite={handleToggleFavorite} />
       {/* Header avec bouton favori */}
-      <CommonHeader />
       <ScrollView showsVerticalScrollIndicator={false}>
           {/* Affichage image produit */}
           <View style={styles.imageContainer}>

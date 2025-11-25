@@ -32,7 +32,7 @@ const CommonHeader = ({isFav,showCart,handleToggleFavorite}:Props) => {
     <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
             <Feather
-                name='arrow-left' size={24} color={AppColors.background.primary}
+                name='arrow-left' size={20} color={AppColors.background.primary}
             />
         </TouchableOpacity>
 

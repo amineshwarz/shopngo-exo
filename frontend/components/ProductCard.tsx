@@ -10,14 +10,17 @@ import { AppColors } from '@/constants/theme';
 import Button from './Button';
 import { useRouter } from 'expo-router';
 import Rating from './Rating';
+import { useCartStore } from '@/store/cartStore';
+import { useFavoritesStore } from '@/store/favoriteStore';
+import { AntDesign, Feather } from '@expo/vector-icons';
 
 
 
 
 interface ProductCardProps {
     product: Product;
-    compact?: boolean;
-    customStyle?: StyleProp<ViewStyle>;
+    compact?: boolean;                      // Optionnel : pour afficher une version compacte de la carte
+    customStyle?: StyleProp<ViewStyle>;     // Optionnel : pour des styles personnalisés
 }
 
 
@@ -28,8 +31,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, custo
     const {id, title, price, category, image, rating} = product;
 
     const router = useRouter();
+    const {addItem} = useCartStore();
+    const {isFavorite, toggleFavorite} = useFavoritesStore();
+    const isFav = isFavorite(id);             // Vérifie si le produit est dans les favoris
 
     const handleAddToCart = () => {
+        //e.stopPropagation();                // Empêche la propagation de l'événement au TouchableOpacity parent
+        addItem(product, 1);                // Ajoute le produit au panier avec une quantité de 1
         Toast.show({
             type: 'success',
             text1: `Produit ${title} a été ajouté au panier.`,
@@ -40,7 +48,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, custo
     };
 
     const handleProductRoute = () => {
+        // Logique pour naviguer vers la page du produit
+        //on ecrit la route de cette manière car expo router n'accepte pas les types dynamiques que static
         router.push(`/product/${id}`as any);
+    }
+
+    const handleToggleFavorite = () => {
+        toggleFavorite(product);
     }
 
   return (
@@ -48,6 +62,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact=false, custo
     <TouchableOpacity style={[styles.card, compact && styles.compactCard,customStyle]} activeOpacity={0.8} onPress={handleProductRoute}>
         <View style={styles.imageContainer}>
             <Image source={{uri: image}} style={styles.image} resizeMode="contain"/>
+            <TouchableOpacity onPress={handleToggleFavorite} style={[styles.favoriteButton, {borderWidth: isFav ? 1 : 0}]}>
+                <Feather
+                    name='heart'
+                    size={20}
+                    color={AppColors.text.primary}
+                />
+            </TouchableOpacity>
         </View>
         <View style={styles.content}>
             <Text style={styles.category}>{category}</Text>
@@ -103,7 +124,7 @@ const styles = StyleSheet.create({
         height:32,
         justifyContent:'center',
         alignItems:'center',
-        borderColor: AppColors.warning,
+        borderColor: AppColors.error,
     },
     image:{
         width: '100%',
