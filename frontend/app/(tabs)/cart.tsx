@@ -1,6 +1,6 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import MainLayout from '@/components/MainLayout';
@@ -8,49 +8,103 @@ import EmptyState from '@/components/EmptyState';
 import { AppColors } from '@/constants/theme';
 import { Title } from '@/components/customText';
 import CartItem from '@/components/CartItem';
+import Button from '@/components/Button';
 
 export default function CartScreen() {
 
-  
+// ---------------------------------- Récupération des données et hooks --------------------------------
   const router = useRouter();                                       // Accès à l'objet router pour naviguer dans l’app
   const { items, getTotalPrice, clearCart } = useCartStore();       // Récupération des éléments du panier et des fonctions associées depuis le store cart
   const { user } = useAuthStore();                                   // Récupération de l’utilisateur connecté depuis le store auth
   const [loading, setLoading] = useState(false);                      // State local loading pour gérer l’état de la commande
-  
-  return (
-    <MainLayout>
-      {/* Affichage conditionnel si panier non vide */}
-      {items?.length > 0 ? (
-          <View style={styles.header}>
-              <Title> produit du panier </Title>
-              <Text style={styles.itemCount}>{items.length} produits </Text>
-              <FlatList
-                data={items}
-                keyExtractor={(items) => items.product.id.toString()}
-                renderItem={({item}) => (
-                    <CartItem product={item.product} quantity={item.quantity}/>
-                )}
-                contentContainerStyle={styles.cartItemsContainer}
-                showsVerticalScrollIndicator={false}
-              />
-              <View style={styles.summaryContainer}>
-                  <View style={styles.summaryRow}>
-                      <Text style={styles.summaryLabel}>sous-total:</Text>
-                  </View>
-              </View>
-          </View>
-      ) : (
-        // Si panier vide, affiche message et bouton redirection magasin
-          <EmptyState 
-            type="cart"
-            message='Votre panier est vide'
-            actionLabel='Commencez vos achats'
-            onAction={() => router.push("/(tabs)/shop")}
-          />
-      )}
-    </MainLayout>
 
-  )
+  // Calculs des prix : sous-total des articles, frais de port conditionnels, total global
+  const subtotal = getTotalPrice();
+  const shippingCost = subtotal > 50 ? 5.99 : 0;
+  const total = subtotal + shippingCost;
+
+  // ---------------------------------Les handlers ------------------------------------------------
+  const handlePlaceOrder = async () => {
+
+  }
+
+  
+ // ---------------------------------- Rendu du composant -------------------------------- 
+ return (
+  <MainLayout>
+    {/* Affichage conditionnel si panier non vide */}
+    {items?.length > 0 ? (
+        <View style={styles.container}>
+            {/* Header panier avec titre et bouton vider panier */}
+            <View style={styles.headerView}>
+                <View style={styles.header}>
+                <Title>Produits du panier</Title>
+                <Text style={styles.itemCount}>{items?.length} produits</Text>
+            </View>
+            <View>
+                <TouchableOpacity onPress={() => clearCart()}>
+                  <Text style={styles.resetText}>Vider le panier</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+        {/* Liste des articles du panier avec FlatList */}
+        <FlatList 
+            data={items}
+            keyExtractor={(item) => item.product.id.toString()}
+            renderItem={({item}) => ( 
+              <CartItem product={item.product} quantity={item.quantity}/> 
+            )}
+            contentContainerStyle={styles.cartItemsContainer}
+            showsVerticalScrollIndicator={false}
+        />
+        {/* Section résumé prix : sous-total, frais de port, total */}
+        <View style={styles.summaryContainer}>
+            <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Sous-total: </Text>
+                <Text style={styles.summaryValue}>€{subtotal.toFixed(2)}</Text>
+            </View>
+            {/* Affiche frais de port seulement si > 0 */}
+          {shippingCost > 0 && (
+            <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Frais de port: </Text>
+                <Text style={styles.summaryValue}>€{shippingCost.toFixed(2)}</Text>
+            </View>
+          )}
+            <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Total: </Text>
+                <Text style={styles.summaryValue}>€{total.toFixed(2)}</Text>
+            </View>
+            {/* Bouton passer commande désactivé si pas connecté ou en chargement */}
+            <Button
+                title="Passer commande"
+                fullWidth 
+                style={styles.checkoutButton} 
+                disabled = {!user || loading}
+                onPress={handlePlaceOrder}
+            />
+            {/* Invitation à se connecter si non connecté */}
+          {!user && (
+            <View style={styles.alertView}>
+              <Text style={styles.alertText}>
+                Connectez-vous pour passer commande
+              </Text>
+              <Link href={"/(tabs)/login"}>
+                <Text style={styles.loginText}>Connexion</Text>
+              </Link>
+            </View>
+          )}
+        </View>
+      </View>
+    ) : (
+      // Si panier vide, affiche message et bouton redirection magasin
+      <EmptyState 
+        type="cart"
+        message='Votre panier est vide'
+        actionLabel='Commencez vos achats'
+        onAction={() => router.push("/(tabs)/shop")}/>
+    )}
+  </MainLayout>
+)
 }
 
 const styles = StyleSheet.create({

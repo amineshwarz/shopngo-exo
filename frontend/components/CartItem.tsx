@@ -4,21 +4,63 @@ import { Product } from '@/type';
 import { useRouter } from 'expo-router';
 import { useCartStore } from '@/store/cartStore';
 import { AppColors } from '@/constants/theme';
-
+import { AntDesign } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
+//---------------------------------L'interface ------------------------------------------------
 interface CartItemProps {
     product: Product;
     quantity: number; 
 }
-
+// ----------------------------------Le composant ------------------------------------------------
 const CartItem: React.FC<CartItemProps> = ({product, quantity}) => {
 
     const router = useRouter();
     const {updateQuantity, removeItem} = useCartStore();  // Récupération des fonctions du store cart
 
+
+
+    // ---------------------------------Les handlers ------------------------------------------------
     const handlePress = () => {
         router.push(`/product/${product.id}`);
     };
 
+    const handleDecrease = () => {
+        if (quantity > 1) {
+            updateQuantity(product.id, quantity - 1);
+            Toast.show({
+                type: "success",
+                text1: "Quantité reduite",
+                visibilityTime: 2000,
+            });
+        } else {
+            Toast.show({
+                type: "error",
+                text1: "Vous ne pouvez pas enlever moins de 1 article",
+                visibilityTime: 2000,
+            });
+        }
+    };
+    const handleIncrease = () => {
+        updateQuantity(product.id, quantity + 1);
+        Toast.show({
+            type: "success",
+            text1: "Quantité augmenté",
+            visibilityTime: 2000,
+        });
+    };
+
+    const handleRemove = () => {
+        removeItem(product.id) 
+        Toast.show({
+            type: "success",
+            text1: "Suppression Réussi",
+            text2: `${product.title} à été supprimé de votre panier`,
+            visibilityTime: 2000,
+        });
+    }
+
+
+    // ---------------------------------Le Return JSX ------------------------------------------------
   return (
     <View style={styles.container}>
         <TouchableOpacity style={styles.imageContainer} onPress={handlePress}>
@@ -32,6 +74,34 @@ const CartItem: React.FC<CartItemProps> = ({product, quantity}) => {
             <TouchableOpacity>
                 <Text style={styles.title}>{product.title}</Text>
             </TouchableOpacity>
+            <Text style={styles.price}>
+                €{(product.price * quantity).toFixed(2)}
+            </Text>
+            <View style={styles.quantityContainer}>
+                <TouchableOpacity  onPress={handleDecrease} style={styles.quantityButton}>
+                        <AntDesign
+                            name='minus'
+                            size={16}
+                            color={AppColors.text.primary}
+                        />
+                </TouchableOpacity>
+                <Text style={styles.quantity}>{quantity}</Text>
+                <TouchableOpacity  onPress={handleIncrease} style={styles.quantityButton}>
+                    <AntDesign
+                        name='plus'
+                        size={16}
+                        color={AppColors.text.primary}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleRemove} style={styles.removeButton}>
+                    <AntDesign
+                        name='delete'
+                        size={16}
+                        color={AppColors.error}
+                    />
+                </TouchableOpacity>
+            </View>
+
             
         </View>
     </View>
@@ -40,6 +110,7 @@ const CartItem: React.FC<CartItemProps> = ({product, quantity}) => {
 
 export default CartItem
 
+//----------------------------------Les styles ------------------------------------------------
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
