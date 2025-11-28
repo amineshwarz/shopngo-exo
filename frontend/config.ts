@@ -8,4 +8,4 @@ export {
     EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY,API_URL
 }
 
-// export const BASE_URL = 
+export const BASE_URL = "http://192.168.50.14:8000/checkout"
