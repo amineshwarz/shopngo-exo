@@ -34,6 +34,7 @@ const OrderItem = ({order, onDelete, email, onViewDetails}: Props) => {
     const router = useRouter();
 
     const handlePayNow = async () => {
+        console.log("Bouton Payer cliqué pour la commande", order?.id); // DEBUG
         setLoading(true);
         setDisable(true);
         const payload = {
@@ -41,7 +42,7 @@ const OrderItem = ({order, onDelete, email, onViewDetails}: Props) => {
             email: email,
         };
         try {
-           const response = await axios.post(`${BASE_URL}/checkout`,
+           const response = await axios.post(`${BASE_URL}`,
             payload,{
                 headers: { "Content-Type": "application/json" },
             });
@@ -62,6 +63,18 @@ const OrderItem = ({order, onDelete, email, onViewDetails}: Props) => {
                         })
                     }},
                 ])
+             }else{
+                // Navigation vers l’écran de paiement avec données Stripe et Id commande Supabase
+            router.push({
+                pathname: "/(tabs)/payment",
+                params:{
+                  paymentIntent,
+                  ephemeralKey,
+                  customer,
+                  orderId:order?.id, // Id de la commande pour suivi/mise à jour
+                  total: order?.total_price, // Montant total à payer
+                },
+              });
              }
         } catch (error) {
             
@@ -108,21 +121,21 @@ const OrderItem = ({order, onDelete, email, onViewDetails}: Props) => {
                     <Text style={styles.viewDetailsText}>Détails</Text>
                 </TouchableOpacity>
                 {!isPaid && (
-                <TouchableOpacity 
-                    disabled={disable}
-                    onPress={handlePayNow} 
-                    style={styles.payNowButton}
-                >
-                    {loading ? (
-                        <ActivityIndicator 
-                            size="small"
-                            color={AppColors.background.primary}
-                        /> 
-                    ): (
-                        <Text style={styles.payNowText}>Payer</Text>
-                    )}
-                </TouchableOpacity>
-            )}
+                    <TouchableOpacity 
+                        disabled={disable}
+                        onPress={handlePayNow} 
+                        style={styles.payNowButton}
+                    >
+                        {loading ? (
+                            <ActivityIndicator 
+                                size="small"
+                                color={AppColors.background.primary}
+                            /> 
+                        ): (
+                            <Text style={styles.payNowText}>Payer</Text>
+                        )}
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
         {order?.items[0]?.image && (

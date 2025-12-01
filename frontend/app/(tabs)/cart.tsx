@@ -75,6 +75,7 @@ export default function CartScreen() {
             // "http://localhost:8000/checkout",
             // "http://192.168.1.15:8000/checkout", //maison 
             "http://192.168.50.14:8000/checkout", //AFPA reseau wifi
+            // "http://172.20.10.3:8000/checkout", //AFPA reseau wifi
             payload, 
             {
               headers: {
