@@ -68,16 +68,16 @@ const DeliveryAdressScreen: React.FC = () => {
         console.log('User:', user?.id, 'OrderId:', orderId); //verification
         
         // Vérifie s'il y a bien une commande active pour cet utilisateur.
-        if (!orderId) {
-            Alert.alert("Erreur", "Aucune commande trouvée pour l'ajout d'addresse");
-            return;
-        }
-        // if (!user?.email) {
-        //     Alert.alert("Erreur", "Utilisateur non connecté");
+        // if (!orderId) {
+        //     Alert.alert("Erreur", "Aucune commande trouvée pour l'ajout d'addresse");
         //     return;
         // }
+        if (!user?.email) {
+            Alert.alert("Erreur", "Utilisateur non connecté");
+            return;
+        }
         // Vérifie que le champ adresse n'est pas vide ou composé uniquement d'espaces.
-        if (!address.trim) {
+        if (!address.trim()) {
             Alert.alert("Validation", "l'adresse ne peut pas être vide");
             return;
         }
@@ -87,13 +87,14 @@ const DeliveryAdressScreen: React.FC = () => {
         const {error} = await supabase
             .from("orders")
             .update({delivery_address: address})
-            // .eq("user_email", user.email);
-            .eq("id", orderId);
+            .eq("user_email", user.email);
         // Chargement terminé.
         setLoading(false);
         // Gestion de la réponse de la base de données.
         if (error) {
-            Alert.alert("Erreur", "Impossible d'ajouter l'adresse");
+            // AFFICHE L'ERREUR RÉELLE DANS LE TERMINAL
+            console.error("Erreur Supabase détaillée :", error); 
+            Alert.alert("Erreur", `Détail: ${error.message}`); // Affiche aussi le message technique sur l'écran
         } else {
             Alert.alert("Succés", "Adresse ajouté avec succés");
             // Retour à la page précédente.
@@ -147,6 +148,6 @@ const styles = StyleSheet.create({
     }, 
     button: {
     marginTop: 16,
-    backgroundColor: AppColors.info,
+    backgroundColor: AppColors.primary[500],
   },
 })
